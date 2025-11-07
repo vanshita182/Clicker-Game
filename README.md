@@ -1,1 +1,1 @@
-# Clicker-Game
+# Plant clicker game
