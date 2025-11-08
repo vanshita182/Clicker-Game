@@ -139,3 +139,27 @@ setInterval(saveGame, 5000);
 // Initial setup calls
 updateDisplay();
 growPlant();
+
+// === Floating Leaves ===
+const body = document.body;
+const leafCount = 10; // number of leaves on screen
+
+for (let i = 0; i < leafCount; i++) {
+  const leaf = document.createElement("div");
+  leaf.classList.add("leaf");
+  leaf.textContent = "🍃";
+
+  // Random horizontal position (0% - 100%)
+  leaf.style.left = Math.random() * 100 + "vw";
+
+  // Random size (1em - 3em)
+  leaf.style.fontSize = 1 + Math.random() * 2 + "em";
+
+  // Random animation duration (6s - 15s)
+  leaf.style.animationDuration = 6 + Math.random() * 9 + "s";
+
+  // Random animation delay (so they don't all fall together)
+  leaf.style.animationDelay = Math.random() * 10 + "s";
+
+  body.appendChild(leaf);
+}

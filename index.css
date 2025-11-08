@@ -1,39 +1,132 @@
-/* Background gradient animation + floating leaves */
-@keyframes gradientShift {
-  0% { background: linear-gradient(135deg, #43cea2, #185a9d); }
-  50% { background: linear-gradient(135deg, #185a9d, #43cea2); }
-  100% { background: linear-gradient(135deg, #43cea2, #185a9d); }
-}
-
-@keyframes floatLeaves {
-  from { transform: translateY(0) rotate(0deg); opacity: 1; }
-  to { transform: translateY(-800px) rotate(360deg); opacity: 0; }
-}
-
-body::after {
-  content: "🍃";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  font-size: 2em;
-  opacity: 0.5;
-  animation: floatLeaves 12s linear infinite;
-}
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  animation: gradientShift 15s ease infinite;
   margin: 0;
   height: 100vh;
+  overflow: hidden;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
-  overflow: hidden;
-  transition: background 1s ease-in-out;
 }
 
-/* Layout */
+/* Day-night background animation */
+@keyframes skyCycle {
+  0%   { background: linear-gradient(to top, #87ceeb, #ccefff); }  /* morning */
+  25%  { background: linear-gradient(to top, #a1d6ff, #e0f7ff); }  /* noon */
+  50%  { background: linear-gradient(to top, #87ceeb, #ccefff); }  /* evening */
+  100% { background: linear-gradient(to top, #1a2a42, #3b4a60); }  /* night */
+}
+
+body {
+  animation: skyCycle 60s linear infinite;
+}
+
+/* Sun */
+.sun {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #fff176, #ffb74d, #f57c00);
+  border-radius: 50%;
+  z-index: 10; 
+  top: 60%;
+  left: -10%;
+  animation: sunMove 60s linear infinite;
+}
+
+/* Sun movement with fade out when offscreen */
+@keyframes sunMove {
+  0%   { top: 60%; left: -10%; opacity: 0; }     /* Offscreen left, invisible */
+  10%  { top: 50%; left: 0%; opacity: 0.5; }       /* Sun starts entering */
+  40%  { top: 20%; left: 50%; opacity: 1; }      /* Sun at peak */
+  70%  { top: 50%; left: 100%; opacity: 0.5; }     /* Sun setting */
+  80%  { top: 60%; left: 110%; opacity: 0; }     /* Offscreen right, invisible */
+  100% { top: 60%; left: -10%; opacity: 0; }     /* Reset offscreen left, invisible */
+}
+
+/* Stars */
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+/* fade stars in night, hide in day */
+@keyframes starTwinkle {
+  0%   { opacity: 0; transform: scale(0.8); }
+  50%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(0.8); }
+}
+
+/* fade stars during sky cycle using JS or CSS overlay animation */
+@keyframes starsFade {
+  0%, 40% { opacity: 0; }   /* day */
+  50%, 100% { opacity: 1; } /* night */
+}
+
+/* Floating leaves falling from top to bottom */
+@keyframes floatLeaves {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.leaf {
+  position: absolute;
+  top: -50px;   /* start above screen */
+  font-size: 1.5em;
+  opacity: 0;
+  animation-name: floatLeaves;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Leaves element */
+body::after {
+  content: "🍃";
+  position: absolute;
+  top: -50px;        /* start slightly above screen */
+  left: 50%;
+  font-size: 2em;
+  opacity: 0;
+  animation: floatLeaves 12s linear infinite;
+}
+
+body .leaves {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  font-size: 2em;
+  opacity: 0;
+  animation: floatLeaves 12s linear infinite;
+}
+
+/* Panels stay above sun */
+.left-panel, .right-panel {
+  position: relative;
+  z-index: 20;           /* above sun */
+}
+
+/* === Existing Layout Styles === */
 .container {
   display: flex;
   justify-content: space-around;
@@ -141,6 +234,7 @@ h1 {
   text-shadow: 0 0 5px rgba(255,255,255,0.3);
 }
 
+/* Upgrades */
 .upgrade {
   display: flex;
   justify-content: space-between;
@@ -158,17 +252,16 @@ h1 {
   transform: scale(1.05);
 }
 
-/* Disabled upgrade */
 .upgrade.disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Purchase Flash */
 @keyframes purchaseFlash {
   from { box-shadow: 0 0 15px 5px rgba(173,255,47,0.8); }
   to { box-shadow: none; }
 }
+
 .upgrade.purchased {
   animation: purchaseFlash 0.6s ease-out;
 }
