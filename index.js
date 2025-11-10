@@ -19,17 +19,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const progressFill = document.getElementById('progress-fill');
   const clickSound = document.getElementById('click-sound');
   const upgradeSound = document.getElementById('upgrade-sound');
+  const backgroundMusic = document.getElementById('background-sound');
 
   // =============================
-  // 🎵 SOUND HELPER FUNCTION
+  // 🎵 BACKGROUND MUSIC SETUP
+  // =============================
+  if (backgroundMusic) {
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.3; // optional volume adjustment
+  }
+
+  function startBackgroundMusic() {
+    if (backgroundMusic && backgroundMusic.paused) {
+      backgroundMusic.play().catch(() => {
+        console.log("Background music will start on first user interaction.");
+      });
+    }
+  }
+
+  // =============================
+  // 🎵 SOUND HELPER FUNCTIONS
   // =============================
   function playClickSound() {
     if (!clickSound) return;
     try {
-      clickSound.currentTime = 0; // rewind sound
-      clickSound.play().catch(() => {
-        // browser blocked playback (user interaction required)
-      });
+      clickSound.currentTime = 0;
+      clickSound.play().catch(() => {});
     } catch (err) {
       console.warn("Sound playback error:", err);
     }
@@ -56,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Greenhouse Expansion 🌺", cost: 500, effect: () => { clickValue *= 10; autoClickers += 5; } }
   ];
 
-  // Update UI elements after each interaction
   function updateDisplay() {
     scoreDisplay.textContent = `Points: ${Math.floor(score)}`;
     renderUpgrades();
@@ -64,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updatePlantStage();
   }
 
-  // Save game state in local storage
   function saveGame() {
     localStorage.setItem('score', score);
     localStorage.setItem('clickValue', clickValue);
@@ -72,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem('plantStage', plantStage);
   }
 
-  // Dynamically render upgrade store
   function renderUpgrades() {
     upgradesContainer.innerHTML = '';
     upgrades.forEach((upgrade, index) => {
@@ -88,10 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle upgrade purchase logic
   function buyUpgrade(index, div) {
     const upgrade = upgrades[index];
     if (score >= upgrade.cost) {
+      startBackgroundMusic();
       playClickSound();
       score -= upgrade.cost;
       upgrade.effect();
@@ -105,8 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // =============================
   // 🌿 BUTTON LOGIC
   // =============================
-
   clickButton.addEventListener('click', () => {
+    startBackgroundMusic();
     playClickSound();
     score += clickValue;
     growPlant();
@@ -114,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   resetButton.addEventListener('click', () => {
+    startBackgroundMusic();
     playClickSound();
     if (confirm("Are you sure you want to reset the game?")) {
       localStorage.clear();
@@ -129,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // =============================
   // 🌱 PLANT GROWTH & PROGRESS
   // =============================
-
   function growPlant() {
     let scale = 1 + score / 2000;
     if (scale > 3) scale = 3;
@@ -138,23 +150,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updatePlantStage() {
     const previousStage = plantStage;
-
-    // Define score thresholds
     if (score >= 0 && score < 100) plantStage = 1;
     else if (score >= 100 && score < 150) plantStage = 2;
     else if (score >= 150 && score < 200) plantStage = 3;
     else if (score >= 200 && score < 250) plantStage = 4;
     else if (score >= 250) plantStage = 5;
 
-    // If plant has reached a new stage → play sound
     if (plantStage !== previousStage) {
       playUpgradeSound();
     }
 
-    // Update plant image
     plant.src = `plant_stage${plantStage}.png`;
 
-    // Progress bar logic
     let nextStageScore = 100;
     if (plantStage === 1) nextStageScore = 100;
     else if (plantStage === 2) nextStageScore = 150;
