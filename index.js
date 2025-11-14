@@ -160,8 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
       playUpgradeSound();
     }
 
-    // Update plant image
-    plant.src = `/src/images/plant_stage${plantStage}.png`;
+    plant.src = `plant_stage${plantStage}.png`;
 
     let nextStageScore = 100;
     if (plantStage === 1) nextStageScore = 100;
