@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Update plant image
-    plant.src = `plant_stage${plantStage}.png`;
+    plant.src = `/src/images/plant_stage${plantStage}.png`;
 
     // Progress bar logic
     let nextStageScore = 100;
